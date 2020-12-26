@@ -20,7 +20,8 @@ func main() {
 		os.Getenv("LINEBOT_CHANNEL_TOKEN"),
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		panic(err)
 	}
 
 	router := gin.Default()
@@ -48,9 +49,9 @@ func callbackPOST(c *gin.Context) {
 
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
-			switch event.Message.(type) {
+			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				postTextMessage(event)
+				postTextMessage(event, message.Text)
 
 			case *linebot.StickerMessage:
 				postStickerMessage(event)

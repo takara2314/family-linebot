@@ -1,14 +1,19 @@
 package main
 
-import "github.com/line/line-bot-sdk-go/linebot"
+import (
+	"log"
 
-func postTextMessage(event *linebot.Event) {
+	"github.com/line/line-bot-sdk-go/linebot"
+)
+
+func postTextMessage(event *linebot.Event, message string) {
 	_, err = bot.ReplyMessage(
 		event.ReplyToken,
-		linebot.NewTextMessage("こんにちは！"),
+		linebot.NewTextMessage(gtranslate(message)),
 	).Do()
 
 	if err != nil {
+		log.Println(err)
 		panic(err)
 	}
 }

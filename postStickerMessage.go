@@ -1,6 +1,10 @@
 package main
 
-import "github.com/line/line-bot-sdk-go/linebot"
+import (
+	"log"
+
+	"github.com/line/line-bot-sdk-go/linebot"
+)
 
 func postStickerMessage(event *linebot.Event) {
 	_, err = bot.ReplyMessage(
@@ -9,6 +13,7 @@ func postStickerMessage(event *linebot.Event) {
 	).Do()
 
 	if err != nil {
+		log.Println(err)
 		panic(err)
 	}
 }
