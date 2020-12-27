@@ -9,10 +9,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-func gtranslate(text string) string {
+func gTranslate(text string, targetLang language.Tag) string {
 	ctx := context.Background()
-
-	lang := language.English
 
 	client, err := translate.NewClient(ctx)
 	if err != nil {
@@ -21,7 +19,7 @@ func gtranslate(text string) string {
 	}
 	defer client.Close()
 
-	resp, err := client.Translate(ctx, []string{text}, lang, nil)
+	resp, err := client.Translate(ctx, []string{text}, targetLang, nil)
 	if err != nil {
 		fmt.Printf("Translate: %v", err)
 		panic(err)
