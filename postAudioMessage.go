@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	speech "cloud.google.com/go/speech/apiv1"
@@ -10,8 +12,21 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func postAudioMessage(event *linebot.Event, audioURL string) {
+func postAudioMessage(event *linebot.Event, messageID string) {
 	ctx := context.Background()
+
+	// get audio content
+	content, err := bot.GetMessageContent(messageID).Do()
+	if err != nil {
+		log.Println(err)
+		panic(err)
+	}
+	defer content.Content.Close()
+
+	// convert audio content to bytes
+	buf := new(bytes.Buffer)
+	io.Copy(buf, content.Content)
+	ret := buf.Bytes()
 
 	client, err := speech.NewClient(ctx)
 	if err != nil {
@@ -22,12 +37,13 @@ func postAudioMessage(event *linebot.Event, audioURL string) {
 
 	resp, err := client.Recognize(ctx, &speechpb.RecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
-			Encoding:        speechpb.RecognitionConfig_LINEAR16,
-			SampleRateHertz: 16000,
+			Encoding:        speechpb.RecognitionConfig_WEBM_OPUS,
+			SampleRateHertz: 48000,
 			LanguageCode:    "ja-JP",
+			Model:           "default",
 		},
 		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: audioURL},
+			AudioSource: &speechpb.RecognitionAudio_Content{Content: ret},
 		},
 	})
 	if err != nil {
@@ -35,12 +51,14 @@ func postAudioMessage(event *linebot.Event, audioURL string) {
 		panic(err)
 	}
 
-	replyMessage := "<文字起こし> "
+	replyMessage := ""
 
 	for _, result := range resp.Results {
-		for _, alt := range result.Alternatives {
-			replyMessage += alt.Transcript
-		}
+		replyMessage += result.Alternatives[0].Transcript
+	}
+
+	if replyMessage == "" {
+		replyMessage = "[エラー] 音声を認識できませんでした。 (เราจำเสียงของคุณไม่ได้)"
 	}
 
 	_, err = bot.ReplyMessage(

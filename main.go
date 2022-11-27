@@ -54,10 +54,10 @@ func callbackPOST(c *gin.Context) {
 				postTextMessage(event, message.Text)
 
 			case *linebot.StickerMessage:
-				postStickerMessage(event)
+				postStickerMessage(event, message.StickerID)
 
 			case *linebot.AudioMessage:
-				postAudioMessage(event, message.OriginalContentURL)
+				postAudioMessage(event, message.ID)
 			}
 		}
 	}
