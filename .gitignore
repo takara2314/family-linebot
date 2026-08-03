@@ -1,5 +1,3 @@
-environ.yaml
-
 # Terraform local files
 infra/.terraform/
 infra/*.tfplan
