@@ -3,7 +3,7 @@
 ## 2026-08-03
 
 * **Terraform基盤適用**: `infra/` の単一root moduleを追加し、state bucket、GCS backend、必要API、runtime/deployerサービスアカウント、追加型IAM、WIF、Secret Manager resourceを作成した。apply後planは0差分で、ユーザー管理サービスアカウントキーは0件である。
-* **Terraform構成簡素化**: 固定2件のLINE secretを個別resourceへ変更した。state bucketは自己参照のbootstrap問題を避けるため、Terraform stateから外して手動管理resourceとした。実bucketは削除していない。
+* **Terraform構成簡素化**: 固定2件のLINE secretを個別resourceへ変更し、state address移行後は一時的な `moved` blockも削除した。state bucketは自己参照のbootstrap問題を避けるため、Terraform stateから外して手動管理resourceとした。実bucketは削除していない。
 * **Secret移行**: 配信中App Engine versionの環境変数から値を出力せず、LINE channel secret/tokenをSecret Managerのversion 1へ移行した。
 * **設定集約**: `config.go` を追加し、環境変数、既定値、Secret ManagerからのLINE認証情報取得を `loadConfig` にまとめた。`main.go` はclient初期化とroutingを担当する。
 * **Gemini更新**: Vertex AIからGemini Enterprise Agent Platformへの公式名称変更に合わせ、Go SDK backendを `BackendEnterprise` へ変更した。スタンプmodelはGemini 2.5 Flashと同額で新しい `gemini-3.5-flash-lite` を既定値とした。

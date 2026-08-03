@@ -43,23 +43,3 @@ resource "google_secret_manager_secret_iam_member" "runtime_accessor_channel_tok
   role      = "roles/secretmanager.secretAccessor"
   member    = google_service_account.runtime.member
 }
-
-moved {
-  from = google_secret_manager_secret.line["linebot-channel-secret"]
-  to   = google_secret_manager_secret.line_channel_secret
-}
-
-moved {
-  from = google_secret_manager_secret.line["linebot-channel-token"]
-  to   = google_secret_manager_secret.line_channel_token
-}
-
-moved {
-  from = google_secret_manager_secret_iam_member.runtime_accessor["linebot-channel-secret"]
-  to   = google_secret_manager_secret_iam_member.runtime_accessor_channel_secret
-}
-
-moved {
-  from = google_secret_manager_secret_iam_member.runtime_accessor["linebot-channel-token"]
-  to   = google_secret_manager_secret_iam_member.runtime_accessor_channel_token
-}
