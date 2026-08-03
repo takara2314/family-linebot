@@ -45,18 +45,11 @@ jobs:
           workload_identity_provider: projects/962903877963/locations/global/workloadIdentityPools/github-actions/providers/family-linebot
           service_account: github-appengine-deployer@hamaguchi-family-linebot.iam.gserviceaccount.com
 
-      - name: Set up Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Deploy
+        uses: google-github-actions/deploy-appengine@54d5fc7167ec790eb0233905e3cef384221b4619 # v3.0.1
         with:
           project_id: hamaguchi-family-linebot
-
-      - name: Deploy
-        env:
-          VERSION_ID: v-${{ github.sha }}
-        run: >-
-          gcloud app deploy app.yaml
-          --project=hamaguchi-family-linebot
-          --version="${VERSION_ID:0:14}"
-          --promote
-          --stop-previous-version
-          --quiet
+          deliverables: app.yaml
+          version: v-${{ github.sha }}
+          promote: true
+          flags: --stop-previous-version

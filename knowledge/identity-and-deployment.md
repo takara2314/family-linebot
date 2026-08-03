@@ -29,7 +29,7 @@ sources:
 * `github-appengine-deployer@hamaguchi-family-linebot.iam.gserviceaccount.com`
 * `family-linebot-runtime@hamaguchi-family-linebot.iam.gserviceaccount.com`
 
-deployerには `gcloud app deploy` に必要なApp Engine Deployer、Cloud Build Editor、Storage Object Adminを付与する。成功した `master` のデプロイを即本番へpromoteする方針のため、traffic変更用にApp Engine Service Adminも付与する。Service Account UserはProject全体ではなくruntimeアカウントだけに付与する。[^appengine-roles]
+deployerにはApp Engineへのデプロイに必要なApp Engine Deployer、Cloud Build Editor、Storage Object Adminを付与する。成功した `master` のデプロイを即本番へpromoteする方針のため、traffic変更用にApp Engine Service Adminも付与する。Service Account UserはProject全体ではなくruntimeアカウントだけに付与する。[^appengine-roles]
 
 runtimeアカウントには、アプリが必要とするAPI利用権限とsecret単位のアクセス権だけを付与する。Editorは付与しない。
 
@@ -57,7 +57,7 @@ provider resource名はTerraform outputからworkflowへ設定する。workflow�
 
 1. `go build`、`go vet`、`govulncheck` を実行する。既存方針に合わせて単体テストは新設しない。
 2. GitHub OIDC tokenをWIFで交換する。
-3. `gcloud app deploy app.yaml --quiet` を実行する。
+3. Google管理の `google-github-actions/deploy-appengine` を使って `app.yaml` をデプロイする。
 4. 新しいApp Engine versionとLINE webhookの動作を監視する。
 
 staging環境は作らない。ビルド・静的解析・デプロイ後の手動確認と、以前のApp Engine versionへtrafficを戻せることを本番の安全策とする。
