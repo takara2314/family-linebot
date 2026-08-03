@@ -29,9 +29,11 @@ sources:
 * `github-appengine-deployer@hamaguchi-family-linebot.iam.gserviceaccount.com`
 * `family-linebot-runtime@hamaguchi-family-linebot.iam.gserviceaccount.com`
 
-deployerには `gcloud app deploy` に必要なApp Engine Deployer、Cloud Build Editor、Storage Object Adminを付与する。Service Account UserはProject全体ではなくruntimeアカウントだけに付与する。[^appengine-roles]
+deployerには `gcloud app deploy` に必要なApp Engine Deployer、Cloud Build Editor、Storage Object Adminを付与する。成功した `master` のデプロイを即本番へpromoteする方針のため、traffic変更用にApp Engine Service Adminも付与する。Service Account UserはProject全体ではなくruntimeアカウントだけに付与する。[^appengine-roles]
 
 runtimeアカウントには、アプリが必要とするAPI利用権限とsecret単位のアクセス権だけを付与する。Editorは付与しない。
+
+これら2つのサービスアカウント、IAM、WIF pool/providerはTerraformで作成済みであり、ユーザー管理サービスアカウントキーは作成していない。
 
 # WIFの信頼条件
 
@@ -46,6 +48,8 @@ assertion.ref == "refs/heads/master"
 GitHubは共有マルチテナントissuerを使うため、spoofing防止には信頼するtenantまたはorganizationを制限するattribute conditionが必要である。[^wif-practices]
 
 workflow権限は `contents: read` と `id-token: write` だけにし、`google-github-actions/auth` でdeployerをimpersonateする。長期Google credentialはGitHubに保存しない。
+
+provider resource名はTerraform outputからworkflowへ設定する。workflow自体は後続変更として追加する。
 
 # 本番デプロイフロー
 

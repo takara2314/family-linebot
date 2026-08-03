@@ -1,1 +1,8 @@
 environ.yaml
+
+# Terraform local files
+infra/.terraform/
+infra/*.tfplan
+infra/terraform.tfstate
+infra/terraform.tfstate.*
+infra/.terraform.tfstate.lock.info

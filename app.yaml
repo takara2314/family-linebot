@@ -1,5 +1,6 @@
 runtime: go126
 instance_class: F1
+service_account: family-linebot-runtime@hamaguchi-family-linebot.iam.gserviceaccount.com
 
 automatic_scaling:
   min_instances: 0
