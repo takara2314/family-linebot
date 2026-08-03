@@ -26,7 +26,7 @@ func postAudioMessage(event *linebot.Event, messageID string) {
 	}
 
 	response, err := speechClient.Recognize(ctx, &speechpb.RecognizeRequest{
-		Recognizer: fmt.Sprintf("projects/%s/locations/global/recognizers/_", projectID),
+		Recognizer: fmt.Sprintf("projects/%s/locations/%s/recognizers/_", projectID, appConfig.SpeechLocation),
 		Config: &speechpb.RecognitionConfig{
 			DecodingConfig: &speechpb.RecognitionConfig_AutoDecodingConfig{AutoDecodingConfig: &speechpb.AutoDetectDecodingConfig{}},
 			Model:          "chirp_3",
