@@ -1,6 +1,7 @@
 locals {
   required_services = toset([
     "aiplatform.googleapis.com",
+    "appengine.googleapis.com",
     "cloudbuild.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "iamcredentials.googleapis.com",
