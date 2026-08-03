@@ -10,7 +10,3 @@ output "deployer_service_account" {
 output "runtime_service_account" {
   value = google_service_account.runtime.email
 }
-
-output "state_bucket" {
-  value = google_storage_bucket.terraform_state.name
-}

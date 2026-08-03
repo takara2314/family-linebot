@@ -8,11 +8,6 @@ variable "region" {
   type        = string
 }
 
-variable "state_bucket_name" {
-  description = "Globally unique GCS bucket name for Terraform state."
-  type        = string
-}
-
 variable "github_repository_id" {
   description = "Immutable numeric GitHub repository ID."
   type        = string

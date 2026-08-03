@@ -27,7 +27,7 @@ sources:
 # Phase 2: Terraform bootstrap
 
 1. [完了] 単一rootの `infra/` 構成を追加する。
-2. [完了] local stateで `hamaguchi-family-linebot-tfstate` を作り、stateをGCSへ移行する。
+2. [完了] `hamaguchi-family-linebot-tfstate` を手動bootstrap resourceとして作り、Terraform管理外のGCS backendとして利用する。
 3. [完了] 必要API、identity、IAM、secretを追加型resourceで管理する。既存App Engine applicationとlive stateは管理対象外とする。
 4. [完了] apply後の `terraform plan` が0差分で、既存IAMを削除しないことを確認する。
 

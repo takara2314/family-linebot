@@ -46,7 +46,7 @@ GoogleはCloud Storage remote backendを推奨し、build systemと高権限管�
 
 # 初回構築
 
-最初だけlocal stateでstate bucketを作成し、GCS backendを有効化して `terraform init -migrate-state` で移行する。復旧方法とbootstrapコマンドを `infra/README.md` に記録する。
+state bucketはTerraform自身では管理しない。backend初期化前にgcloud CLIで手動作成し、公開防止、uniform access、versioning、soft deleteを設定する。これによりstateを保存するbucket自身を同じstateで管理する循環を避ける。復旧方法とbootstrapコマンドを `infra/README.md` に記録する。
 
 # Resourceの管理境界
 
