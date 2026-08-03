@@ -1,35 +1,64 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
-	"os"
 
+	speech "cloud.google.com/go/speech/apiv2"
+	translate "cloud.google.com/go/translate/apiv3"
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v8/linebot"
+	"google.golang.org/genai"
 )
 
 var (
-	bot *linebot.Client
-	err error
+	bot             *linebot.Client
+	translateClient *translate.TranslationClient
+	speechClient    *speech.Client
+	geminiClient    *genai.Client
+	projectID       string
+	appConfig       config
+	err             error
 )
 
 func main() {
-	bot, err = linebot.New(
-		os.Getenv("LINEBOT_CHANNEL_SECRET"),
-		os.Getenv("LINEBOT_CHANNEL_TOKEN"),
-	)
+	ctx := context.Background()
+	appConfig, err = loadConfig(ctx)
 	if err != nil {
-		log.Println(err)
-		panic(err)
+		log.Fatal(err)
+	}
+	projectID = appConfig.ProjectID
+
+	bot, err = linebot.New(appConfig.LineChannelSecret, appConfig.LineChannelToken)
+	if err != nil {
+		log.Fatal(err)
+	}
+	translateClient, err = translate.NewTranslationClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer translateClient.Close()
+	speechClient, err = speech.NewClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer speechClient.Close()
+	geminiClient, err = genai.NewClient(ctx, &genai.ClientConfig{
+		Backend:  genai.BackendEnterprise,
+		Project:  projectID,
+		Location: appConfig.GeminiLocation,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	router := gin.Default()
-
 	router.GET("/", rootGET)
 	router.POST("/callback", callbackPOST)
-
-	router.Run(":" + os.Getenv("PORT"))
+	if err := router.Run(":" + appConfig.Port); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func rootGET(c *gin.Context) {
@@ -40,9 +69,9 @@ func callbackPOST(c *gin.Context) {
 	events, err := bot.ParseRequest(c.Request)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
-			c.Writer.WriteHeader(400)
+			c.Writer.WriteHeader(http.StatusBadRequest)
 		} else {
-			c.Writer.WriteHeader(500)
+			c.Writer.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
@@ -52,10 +81,8 @@ func callbackPOST(c *gin.Context) {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				postTextMessage(event, message.Text)
-
 			case *linebot.StickerMessage:
 				postStickerMessage(event, message.StickerID)
-
 			case *linebot.AudioMessage:
 				postAudioMessage(event, message.ID)
 			}

@@ -4,29 +4,51 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
-	"cloud.google.com/go/translate"
+	"cloud.google.com/go/translate/apiv3/translatepb"
 	"golang.org/x/text/language"
 )
 
 func gTranslate(text string, targetLang language.Tag) string {
 	ctx := context.Background()
+	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+	contents := make([]string, 0, len(lines))
+	indexes := make([]int, 0, len(lines))
+	prefixes := make([]string, len(lines))
+	suffixes := make([]string, len(lines))
 
-	client, err := translate.NewClient(ctx)
-	if err != nil {
-		log.Println(err)
-		panic(err)
+	for i, line := range lines {
+		withoutPrefix := strings.TrimLeft(line, " \t")
+		prefixes[i] = line[:len(line)-len(withoutPrefix)]
+		content := strings.TrimRight(withoutPrefix, " \t")
+		suffixes[i] = withoutPrefix[len(content):]
+		if content == "" {
+			continue
+		}
+		contents = append(contents, content)
+		indexes = append(indexes, i)
 	}
-	defer client.Close()
+	if len(contents) == 0 {
+		return text
+	}
 
-	resp, err := client.Translate(ctx, []string{text}, targetLang, nil)
+	response, err := translateClient.TranslateText(ctx, &translatepb.TranslateTextRequest{
+		Parent:             fmt.Sprintf("projects/%s/locations/global", projectID),
+		Contents:           contents,
+		MimeType:           "text/plain",
+		TargetLanguageCode: targetLang.String(),
+	})
 	if err != nil {
-		fmt.Printf("Translate: %v", err)
+		log.Printf("Translate: %v", err)
 		panic(err)
 	}
-	if len(resp) == 0 {
-		fmt.Printf("Translate returned empty response to text: %s", text)
-		panic(err)
+	if len(response.Translations) != len(contents) {
+		panic("Translate returned unexpected number of results")
 	}
-	return resp[0].Text
+	for i, translated := range response.Translations {
+		index := indexes[i]
+		lines[index] = prefixes[index] + translated.TranslatedText + suffixes[index]
+	}
+	return strings.Join(lines, "\n")
 }
