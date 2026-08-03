@@ -84,13 +84,13 @@ recognizer設定では次だけを指定する。
 
 ```text
 model: chirp_3
-location: asia-northeast1
+location: us
 language_codes: [ja-JP]
 ```
 
 言語自動判定を有効にせず、代替言語にタイ語を含めない。音声メッセージの約99%が日本語なので、タイ語音声は意図的に非対応とする。
 
-非対応または認識不能の音声には、音声認識は現在日本語だけに対応することを明示したLINE応答を返す。LINEが返すMP3またはM4AをSpeech-to-Text v2のauto decodingへ渡す。v2はMP3、MP4/M4A AAC、WebM/Opusを自動判定できるため、sample rateやcodecを固定しない。
+非対応または認識不能の音声には、音声認識は現在日本語だけに対応することを明示したLINE応答を返す。LINEが返すMP3またはM4AをSpeech-to-Text v2のauto decodingへ渡す。v2はMP3、MP4/M4A AAC、WebM/Opusを自動判定できるため、sample rateやcodecを固定しない。`asia-northeast1` では実際のAPIが日本語Chirp 3を拒否したため、品質を優先して `us` multi-regionを利用する。
 
 # クライアントのライフサイクル
 

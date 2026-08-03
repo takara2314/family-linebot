@@ -28,7 +28,7 @@ func loadConfig(ctx context.Context) (config, error) {
 		LineChannelToken:   os.Getenv("LINEBOT_CHANNEL_TOKEN"),
 		GeminiLocation:     envOrDefault("GEMINI_LOCATION", "global"),
 		GeminiStickerModel: envOrDefault("GEMINI_STICKER_MODEL", "gemini-3.5-flash-lite"),
-		SpeechLocation:     envOrDefault("SPEECH_LOCATION", "asia-northeast1"),
+		SpeechLocation:     envOrDefault("SPEECH_LOCATION", "us"),
 	}
 	if cfg.ProjectID == "" {
 		return config{}, fmt.Errorf("GOOGLE_CLOUD_PROJECT is required")
