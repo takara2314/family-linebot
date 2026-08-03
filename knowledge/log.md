@@ -2,6 +2,7 @@
 
 ## 2026-08-03
 
+* **日本語Chirp 3をusへ変更**: `asia-northeast1` で `chirp_3` と `ja-JP` が `It is no longer generally available` と拒否された。課金とIAMは有効であり、同様の事例で動作実績がある `us` multi-regionへSpeech endpointとRecognizerを変更した。
 * **App Engine applicationをTerraform管理へ移行**: 既存の `hamaguchi-family-linebot` applicationを `google_app_engine_application` としてimportし、作成後に削除できない特性に合わせて `prevent_destroy` を設定した。locationは既存どおり `asia-northeast2` とする。
 * **Speech本番不具合を修正**: 初回本番確認で `chirp_3` は `global` に存在しないというエラーを確認した。Speech-to-Text v2のendpointとRecognizerを、日本語 `ja-JP` のChirp 3をGA提供する `asia-northeast1` に揃えた。
 * **初回CDの不足APIを特定**: GitHub Actionsでbuild、vet、脆弱性検査、WIF認証まで成功した。App Engineデプロイ時にApp Engine Admin APIが無効であることが判明したため、`appengine.googleapis.com` をTerraformの必須APIへ追加した。
