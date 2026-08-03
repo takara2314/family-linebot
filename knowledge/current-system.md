@@ -65,6 +65,6 @@ gcloud app versions list --project=hamaguchi-family-linebot
 
 # デリバリー基盤
 
-TerraformによりGitHub Actions用Workload Identity Pool/provider、deployer/runtimeサービスアカウント、Secret Manager secret、必要API、state bucketを作成済みである。配信中App Engine versionの環境変数から値を表示せず、Secret Managerの2つのsecretへversion 1として移行済みである。GitHub Actions workflowはまだ存在せず、明示的なArtifact Registry repositoryも作成していない。
+TerraformによりGitHub Actions用Workload Identity Pool/provider、deployer/runtimeサービスアカウント、Secret Manager secret、必要API、state bucketを作成済みである。配信中App Engine versionの環境変数から値を表示せず、Secret Managerの2つのsecretへversion 1として移行済みである。作業ツリーでは `master` pushを本番へpromoteするGitHub Actions workflowも追加している。明示的なArtifact Registry repositoryは作成していない。
 
 GitHubリポジトリはPublicである。不変なRepository IDは `324532124`、Owner IDは `26915490`、現在のdefault branchは `master` である。

@@ -36,7 +36,7 @@ sources:
 1. [完了] runtimeとdeployerサービスアカウントを作る。
 2. [完了] Repository ID `324532124`、Owner ID `26915490`、`master` に制限したGitHub WIF trustを作る。
 3. [完了] Secret Manager resourceを作り、配信中versionから値を表示せずLINE secret payloadをversion 1へ移行する。
-4. GitHub Actionsのビルド・静的解析とApp Engineデプロイを追加する。
+4. [実装完了・初回実行待ち] GitHub Actionsのビルド・静的解析・脆弱性検査とApp Engineデプロイを追加する。
 
 # Phase 4: アプリケーション刷新
 
