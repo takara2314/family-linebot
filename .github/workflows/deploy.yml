@@ -1,0 +1,55 @@
+name: Deploy to App Engine
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: hamaguchi-family-linebot
+          workload_identity_provider: projects/962903877963/locations/global/workloadIdentityPools/github-actions/providers/family-linebot
+          service_account: github-appengine-deployer@hamaguchi-family-linebot.iam.gserviceaccount.com
+
+      - name: Deploy
+        uses: google-github-actions/deploy-appengine@v3
+        with:
+          project_id: hamaguchi-family-linebot
+          deliverables: app.yaml
+          version: v-${{ github.sha }}
+          promote: true
+          flags: --stop-previous-version
