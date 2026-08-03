@@ -3,10 +3,11 @@ type: アプリケーション設計
 title: 翻訳、スタンプ理解、音声認識
 description: Googleの言語・画像サービスに関する品質、言語、API version、評価の意思決定。
 tags: [translation, ocr, speech-to-text, japanese, thai]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
 verified:
   - { by: "human:takara2314", at: "2026-08-03T00:00:00+09:00" }
   - { by: "process:official-doc-review", at: "2026-08-03T00:00:00+09:00" }
+  - { by: "human:takara2314", at: "2026-08-03T13:06:45+09:00" }
 status: stable
 stale_after: 2026-11-03
 sources:
@@ -38,7 +39,7 @@ sources:
 
 # 翻訳
 
-Cloud Translation Basic v2からAdvanced v3へ移行する。カジュアルな会話に適し、IAMを利用でき、十分な月間無料枠があるため、NMTを本番の基準とする。将来切り替える前に、匿名化した家族の日本語・タイ語メッセージでTranslation LLMを評価する。
+Cloud Translation Basic v2からAdvanced v3へ移行済みである。カジュアルな会話に適し、IAMを利用でき、十分な月間無料枠があるため、NMTを本番の基準とする。将来切り替える前に、匿名化した家族の日本語・タイ語メッセージでTranslation LLMを評価する。
 
 次の挙動を維持する。
 
@@ -78,7 +79,7 @@ Cloud Vision `TEXT_DETECTION` は現在コードには残していない。将�
 
 # 音声認識
 
-Speech-to-Text v2へ移行し、現行の `chirp_3` modelを評価する。品質のための課金は許容する。
+Speech-to-Text v2の `chirp_3` を本番利用する。品質のための課金は許容する。
 
 recognizer設定では次だけを指定する。
 

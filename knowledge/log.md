@@ -2,22 +2,10 @@
 
 ## 2026-08-03
 
-* **日本語Chirp 3をusへ変更**: `asia-northeast1` で `chirp_3` と `ja-JP` が `It is no longer generally available` と拒否された。課金とIAMは有効であり、同様の事例で動作実績がある `us` multi-regionへSpeech endpointとRecognizerを変更した。
-* **App Engine applicationをTerraform管理へ移行**: 既存の `hamaguchi-family-linebot` applicationを `google_app_engine_application` としてimportし、作成後に削除できない特性に合わせて `prevent_destroy` を設定した。locationは既存どおり `asia-northeast2` とする。
-* **Speech本番不具合を修正**: 初回本番確認で `chirp_3` は `global` に存在しないというエラーを確認した。Speech-to-Text v2のendpointとRecognizerを、日本語 `ja-JP` のChirp 3をGA提供する `asia-northeast1` に揃えた。
-* **初回CDの不足APIを特定**: GitHub Actionsでbuild、vet、脆弱性検査、WIF認証まで成功した。App Engineデプロイ時にApp Engine Admin APIが無効であることが判明したため、`appengine.googleapis.com` をTerraformの必須APIへ追加した。
-* **CD workflow実装**: `master` pushをWIFで認証し、build、vet、脆弱性検査後にApp Engine本番へpromoteするGitHub Actions workflowを追加した。外部Actionは可読性と更新運用を優先してメジャーバージョンを指定する。
-* **Terraform基盤適用**: `infra/` の単一root moduleを追加し、state bucket、GCS backend、必要API、runtime/deployerサービスアカウント、追加型IAM、WIF、Secret Manager resourceを作成した。apply後planは0差分で、ユーザー管理サービスアカウントキーは0件である。
-* **Terraform構成簡素化**: 固定2件のLINE secretを個別resourceへ変更し、state address移行後は一時的な `moved` blockも削除した。state bucketは自己参照のbootstrap問題を避けるため、Terraform stateから外して手動管理resourceとした。実bucketは削除していない。
-* **Secret移行**: 配信中App Engine versionの環境変数から値を出力せず、LINE channel secret/tokenをSecret Managerのversion 1へ移行した。
-* **設定集約**: `config.go` を追加し、環境変数、既定値、Secret ManagerからのLINE認証情報取得を `loadConfig` にまとめた。`main.go` はclient初期化とroutingを担当する。
-* **Gemini更新**: Vertex AIからGemini Enterprise Agent Platformへの公式名称変更に合わせ、Go SDK backendを `BackendEnterprise` へ変更した。スタンプmodelはGemini 2.5 Flashと同額で新しい `gemini-3.5-flash-lite` を既定値とした。
-* **スケーリング上限**: 家族内利用と費用上限を優先し、App Engine automatic scalingを `min_instances: 0`、`max_instances: 1` とした。
-* **翻訳レイアウト保持**: 構造化された文章を行単位で一括翻訳し、空行、インデント、末尾空白、最終改行を復元する処理を追加した。CRLFはLINE表示用にLFへ正規化する。
-* **差分最小化**: 追加していたapplication層、設定層、service interfaceを廃止し、元のGin handler、グローバルclient、`convertJpTh.go` と `post*Message.go` の構成へ実装を戻した。
-* **アプリ刷新の実装**: module pathを `github.com/takara2314/family-linebot` に変更し、Go 1.26、LINE SDK v8、Translation v3、Geminiによるスタンプ解釈、Speech-to-Text v2 `chirp_3`、Secret Manager参照へ更新した。これは未デプロイの作業ツリー状態である。
-* **品質確認**: ビルドと `go vet` を通し、`govulncheck` が指摘したgRPCと `x/text` の間接依存を修正版へ引き上げた。既存方針に合わせ、単体テストは新設しない。
-* **情報設計更新**: 配信中App Engine version、traffic、version数などのlive stateを手書きOKFから除外し、read-onlyコマンドによる取得方法へ置き換えた。
-* **表記変更**: OKF frontmatterと本文を日本語へ統一した。
-* **意思決定更新**: スタンプ処理を文書OCRではなくマルチモーダル解釈として扱い、Geminiを第一候補、Vision OCRを比較基準・障害時fallbackとした。
-* **初期作成**: 現行システム、意思決定、Terraform、WIF、言語サービス、費用、実施計画をOKF v0.2で記録した。
+* **本番検証完了**: オーナーがtext翻訳、改行保持、スタンプ理解、日本語音声認識を確認し、刷新を完了とした。
+* **音声認識確定**: Speech-to-Text v2の `chirp_3`、`ja-JP` を採用した。アジアリージョンの実APIで拒否されたため、動作確認できた `us` multi-regionを利用する。
+* **アプリ刷新**: Go 1.26、LINE SDK v8、Translation Advanced v3、Gemini 3.5 Flash-Lite、Speech-to-Text v2、Secret Managerへ更新した。元コードの構造を保ち、設定だけを `config.go` に集約した。
+* **キーレスCD**: GitHub ActionsからWIFで認証し、build、vet、脆弱性検査後にApp Engineへpromoteするデプロイを本番運用した。
+* **Terraform適用**: 単一root moduleでApp Engine application、必要API、runtime/deployer identity、IAM、WIF、Secret Managerを管理した。state bucketは手動bootstrapとし、apply後planは差分0である。
+* **秘密情報移行**: 旧App Engine環境変数のLINE認証情報を値を表示せずSecret Managerへ移し、payloadをTerraform stateとGitHubへ保存しない構成にした。
+* **OKF整備**: 現行構成、意思決定、Terraform、WIF、言語サービス、費用、刷新記録を日本語のOKF v0.2 bundleとして整理した。

@@ -1,11 +1,11 @@
 ---
-type: 実装計画
-title: family-linebot刷新計画
-description: 検証点とrollback手段を含む、本番環境だけの順序付き刷新作業。
+type: 実施記録
+title: family-linebot刷新の実施記録
+description: 単一本番環境で完了した刷新作業と、運用上の任意残件。
 tags: [plan, modernization, production]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
-status: draft
-stale_after: 2026-11-03
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
+verified: { by: "human:takara2314", at: "2026-08-03T13:06:45+09:00" }
+status: stable
 sources:
   - id: current
     resource: /current-system.md
@@ -15,20 +15,20 @@ sources:
     title: アーキテクチャ意思決定
 ---
 
-# ガードレール
+# 結果
 
-本番環境は1つで、staging環境はない。変更を伴う各stepには、review済みplanまたは明示的な検証点を設ける。刷新versionのデプロイが成功するまで、既存本番trafficは現在のApp Engine versionに残す。
+刷新は2026-08-03に完了し、オーナーがLINEのtext翻訳、スタンプ理解、日本語音声認識を本番で確認した。環境は1つだけで、stagingは設けていない。
 
 # Phase 1: ナレッジと検証
 
 1. [完了] 意思決定の変更に合わせてこのOKF bundleを更新する。
-2. この小規模な既存リポジトリには単体テストを新設せず、ビルド、静的解析、本番前の手動確認で検証する。
+2. [完了] 単体テストを新設せず、ビルド、静的解析、脆弱性検査、本番の手動確認で検証する。
 
 # Phase 2: Terraform bootstrap
 
 1. [完了] 単一rootの `infra/` 構成を追加する。
 2. [完了] `hamaguchi-family-linebot-tfstate` を手動bootstrap resourceとして作り、Terraform管理外のGCS backendとして利用する。
-3. [完了] 必要API、identity、IAM、secretを追加型resourceで管理する。既存App Engine applicationとlive stateは管理対象外とする。
+3. [完了] 必要API、App Engine application、identity、IAM、secretを管理する。配信versionとtrafficはデプロイのlive stateとしてTerraform管理外にする。
 4. [完了] apply後の `terraform plan` が0差分で、既存IAMを削除しないことを確認する。
 
 # Phase 3: キーレスデプロイとsecret
@@ -36,31 +36,32 @@ sources:
 1. [完了] runtimeとdeployerサービスアカウントを作る。
 2. [完了] Repository ID `324532124`、Owner ID `26915490`、`master` に制限したGitHub WIF trustを作る。
 3. [完了] Secret Manager resourceを作り、配信中versionから値を表示せずLINE secret payloadをversion 1へ移行する。
-4. [実装完了・初回実行待ち] GitHub Actionsのビルド・静的解析・脆弱性検査とApp Engineデプロイを追加する。
+4. [完了] GitHub Actionsのビルド・静的解析・脆弱性検査とApp Engineデプロイを追加し、本番デプロイに成功する。
 
 # Phase 4: アプリケーション刷新
 
-1. [実装・ビルド確認完了] Go 1.26、GitHub形式module path、LINE SDK v8へ更新する。
-2. [一部完了] Google Cloud clientは起動時に生成して再利用する。既存コードとの差分を抑えるため、panicベースのerror処理の全面変更は行わない。
-3. [実装・ビルド確認完了] TranslationをAdvanced v3 NMTへ移行する。
-4. [実装・ビルド確認完了] Gemini Enterprise Agent PlatformのGemini 3.5 Flash-Liteによる構造化スタンプ解釈を第一経路として実装する。
-5. 日本語・タイ語スタンプの評価fixtureを作り、Vision OCRを比較基準・fallbackとして追加するか判断する。
-6. [実装・ビルド確認完了] Speechをv2 `chirp_3`、`ja-JP` のみへ移行する。
-7. `app.yaml` に専用runtimeアカウントを指定する。
+1. [完了] Go 1.26、GitHub形式module path、LINE SDK v8へ更新する。
+2. [完了] Google Cloud clientを起動時に生成して再利用する。既存コードとの差分を抑えるため、panicベースのerror処理は維持する。
+3. [完了] TranslationをAdvanced v3 NMTへ移行し、翻訳時の改行とインデントを維持する。
+4. [完了] Gemini 3.5 Flash-Liteによる構造化スタンプ解釈を第一経路として実装する。
+5. [完了] Speechをv2 `chirp_3`、`us`、`ja-JP` のみへ移行する。
+6. [完了] `app.yaml` に専用runtimeアカウントと `max_instances: 1` を指定する。
 
 # Phase 5: 本番デプロイ
 
-1. GitHub Actionsから新しいApp Engine versionをデプロイする。
-2. root health、LINE署名検証、text翻訳、スタンプ理解、日本語音声を検証する。
-3. log、latency、API error、Artifact Registryの挙動、billing signalを確認する。
-4. rollback用に以前の配信versionを保持する。
+1. [完了] GitHub ActionsからApp Engineへデプロイし、新versionへtrafficを100%切り替える。
+2. [完了] root health、LINE webhook、text翻訳、スタンプ理解、日本語音声を検証する。
+3. [完了] Cloud Loggingで初回エラーを特定し、App Engine APIとSpeech locationを修正する。
+4. [完了] rollback可能な以前のversionを保持する。
 
-# Phase 6: 後片付け
+# 任意の運用改善
 
-1. 古いユーザー管理サービスアカウントキーを調査して無効化する。
-2. 新runtime identityの動作確認後にだけApp Engine defaultアカウントからEditorを外す。
-3. 個人名Ownerサービスアカウントは削除検討前に無効化する。
-4. 不要なApp Engine versionを削除し、保存build imageの状況から必要な場合だけArtifact Registry cleanup policyを追加する。
+次は刷新の完了条件ではなく、影響範囲を確認してから別途判断する。
+
+1. 古いユーザー管理サービスアカウントキーの他用途を調査し、不要なら無効化する。
+2. App Engine defaultアカウントのEditorと個人名Ownerサービスアカウントの必要性を確認する。
+3. rollback用の直前version以外を整理し、必要な場合だけArtifact Registryのcleanup policyを検討する。
+4. GitHub Actionsにpath filterを追加し、ドキュメントやTerraformだけの変更による再デプロイを避けるか判断する。
 
 # 完了条件
 
@@ -69,4 +70,3 @@ sources:
 * LINE secretがsource、deployment YAML、GitHub secrets、Terraform stateに存在しない。
 * 日本語text、日本語speech、タイ語text、スタンプ理解が本番検証に合格する。
 * importとデプロイ後のTerraform planが安定する。
-* サービス停止なしで古いユーザー管理キーを廃止する。
