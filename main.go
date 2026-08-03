@@ -9,6 +9,7 @@ import (
 	translate "cloud.google.com/go/translate/apiv3"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v8/linebot"
+	"google.golang.org/api/option"
 	"google.golang.org/genai"
 )
 
@@ -39,7 +40,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer translateClient.Close()
-	speechClient, err = speech.NewClient(ctx)
+	speechClient, err = speech.NewClient(ctx, option.WithEndpoint(appConfig.SpeechLocation+"-speech.googleapis.com:443"))
 	if err != nil {
 		log.Fatal(err)
 	}

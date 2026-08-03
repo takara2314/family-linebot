@@ -9,5 +9,6 @@ automatic_scaling:
 env_variables:
   GEMINI_LOCATION: global
   GEMINI_STICKER_MODEL: gemini-3.5-flash-lite
+  SPEECH_LOCATION: asia-northeast1
   LINE_CHANNEL_SECRET_NAME: linebot-channel-secret
   LINE_CHANNEL_TOKEN_NAME: linebot-channel-token

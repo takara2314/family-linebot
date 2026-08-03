@@ -2,6 +2,7 @@
 
 ## 2026-08-03
 
+* **Speech本番不具合を修正**: 初回本番確認で `chirp_3` は `global` に存在しないというエラーを確認した。Speech-to-Text v2のendpointとRecognizerを、日本語 `ja-JP` のChirp 3をGA提供する `asia-northeast1` に揃えた。
 * **初回CDの不足APIを特定**: GitHub Actionsでbuild、vet、脆弱性検査、WIF認証まで成功した。App Engineデプロイ時にApp Engine Admin APIが無効であることが判明したため、`appengine.googleapis.com` をTerraformの必須APIへ追加した。
 * **CD workflow実装**: `master` pushをWIFで認証し、build、vet、脆弱性検査後にApp Engine本番へpromoteするGitHub Actions workflowを追加した。外部Actionは可読性と更新運用を優先してメジャーバージョンを指定する。
 * **Terraform基盤適用**: `infra/` の単一root moduleを追加し、state bucket、GCS backend、必要API、runtime/deployerサービスアカウント、追加型IAM、WIF、Secret Manager resourceを作成した。apply後planは0差分で、ユーザー管理サービスアカウントキーは0件である。

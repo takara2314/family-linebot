@@ -84,6 +84,7 @@ recognizer設定では次だけを指定する。
 
 ```text
 model: chirp_3
+location: asia-northeast1
 language_codes: [ja-JP]
 ```
 
