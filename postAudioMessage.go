@@ -1,71 +1,54 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"log"
+	"strings"
 
-	speech "cloud.google.com/go/speech/apiv1"
-	"cloud.google.com/go/speech/apiv1/speechpb"
-	"github.com/line/line-bot-sdk-go/linebot"
+	"cloud.google.com/go/speech/apiv2/speechpb"
+	"github.com/line/line-bot-sdk-go/v8/linebot"
 )
 
 func postAudioMessage(event *linebot.Event, messageID string) {
 	ctx := context.Background()
-
-	// get audio content
 	content, err := bot.GetMessageContent(messageID).Do()
 	if err != nil {
 		log.Println(err)
 		panic(err)
 	}
 	defer content.Content.Close()
-
-	// convert audio content to bytes
-	buf := new(bytes.Buffer)
-	io.Copy(buf, content.Content)
-	ret := buf.Bytes()
-
-	client, err := speech.NewClient(ctx)
+	audio, err := io.ReadAll(content.Content)
 	if err != nil {
 		log.Println(err)
 		panic(err)
 	}
-	defer client.Close()
 
-	resp, err := client.Recognize(ctx, &speechpb.RecognizeRequest{
+	response, err := speechClient.Recognize(ctx, &speechpb.RecognizeRequest{
+		Recognizer: fmt.Sprintf("projects/%s/locations/global/recognizers/_", projectID),
 		Config: &speechpb.RecognitionConfig{
-			Encoding:        speechpb.RecognitionConfig_WEBM_OPUS,
-			SampleRateHertz: 48000,
-			LanguageCode:    "ja-JP",
-			Model:           "default",
+			DecodingConfig: &speechpb.RecognitionConfig_AutoDecodingConfig{AutoDecodingConfig: &speechpb.AutoDetectDecodingConfig{}},
+			Model:          "chirp_3",
+			LanguageCodes:  []string{"ja-JP"},
 		},
-		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Content{Content: ret},
-		},
+		AudioSource: &speechpb.RecognizeRequest_Content{Content: audio},
 	})
 	if err != nil {
-		fmt.Printf("failed to recognize: %v", err)
+		log.Println(err)
 		panic(err)
 	}
 
-	replyMessage := ""
-
-	for _, result := range resp.Results {
-		replyMessage += result.Alternatives[0].Transcript
+	var replyMessage strings.Builder
+	for _, result := range response.Results {
+		if len(result.Alternatives) > 0 {
+			replyMessage.WriteString(result.Alternatives[0].Transcript)
+		}
 	}
-
-	if replyMessage == "" {
-		replyMessage = "[エラー] 音声を認識できませんでした。 (เราจำเสียงของคุณไม่ได้)"
+	if replyMessage.Len() == 0 {
+		replyMessage.WriteString("[エラー] 音声を日本語として認識できませんでした。")
 	}
-
-	_, err = bot.ReplyMessage(
-		event.ReplyToken,
-		linebot.NewTextMessage(replyMessage),
-	).Do()
-
+	_, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage.String())).Do()
 	if err != nil {
 		log.Println(err)
 		panic(err)

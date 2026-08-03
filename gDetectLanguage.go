@@ -2,30 +2,26 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
-	"cloud.google.com/go/translate"
+	"cloud.google.com/go/translate/apiv3/translatepb"
 	"golang.org/x/text/language"
 )
 
 func gDetectLanguage(text string) language.Tag {
 	ctx := context.Background()
-
-	client, err := translate.NewClient(ctx)
-	if err != nil {
-		log.Printf("translate.NewClient: %v", err)
-		panic(err)
-	}
-	defer client.Close()
-
-	lang, err := client.DetectLanguage(ctx, []string{text})
+	response, err := translateClient.DetectLanguage(ctx, &translatepb.DetectLanguageRequest{
+		Parent:   fmt.Sprintf("projects/%s/locations/global", projectID),
+		Source:   &translatepb.DetectLanguageRequest_Content{Content: text},
+		MimeType: "text/plain",
+	})
 	if err != nil {
 		log.Printf("DetectLanguage: %v", err)
 		panic(err)
 	}
-	if len(lang) == 0 || len(lang[0]) == 0 {
-		log.Printf("DetectLanguage return value empty")
-		panic("DetectLanguage return value empty")
+	if len(response.Languages) == 0 {
+		panic("DetectLanguage returned empty response")
 	}
-	return lang[0][0].Language
+	return language.Make(response.Languages[0].LanguageCode)
 }

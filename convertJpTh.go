@@ -7,15 +7,13 @@ import (
 )
 
 func convertJpTh(text string) string {
-	var detectLang language.Tag = gDetectLanguage(text)
+	detectLang := gDetectLanguage(text)
 
 	switch detectLang {
 	case language.Japanese:
 		return gTranslate(text, language.Thai)
-
 	case language.Thai:
 		return gTranslate(text, language.Japanese)
-
 	default:
 		return fmt.Sprintf(
 			"%s\n(%s)",
