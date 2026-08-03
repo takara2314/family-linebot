@@ -2,7 +2,7 @@
 
 ## 2026-08-03
 
-* **CD workflow実装**: `master` pushをWIFで認証し、build、vet、脆弱性検査後にApp Engine本番へpromoteするGitHub Actions workflowを追加した。外部Actionはrelease commit SHAへ固定した。
+* **CD workflow実装**: `master` pushをWIFで認証し、build、vet、脆弱性検査後にApp Engine本番へpromoteするGitHub Actions workflowを追加した。外部Actionは可読性と更新運用を優先してメジャーバージョンを指定する。
 * **Terraform基盤適用**: `infra/` の単一root moduleを追加し、state bucket、GCS backend、必要API、runtime/deployerサービスアカウント、追加型IAM、WIF、Secret Manager resourceを作成した。apply後planは0差分で、ユーザー管理サービスアカウントキーは0件である。
 * **Terraform構成簡素化**: 固定2件のLINE secretを個別resourceへ変更し、state address移行後は一時的な `moved` blockも削除した。state bucketは自己参照のbootstrap問題を避けるため、Terraform stateから外して手動管理resourceとした。実bucketは削除していない。
 * **Secret移行**: 配信中App Engine versionの環境変数から値を出力せず、LINE channel secret/tokenをSecret Managerのversion 1へ移行した。
