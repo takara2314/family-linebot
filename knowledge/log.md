@@ -2,6 +2,7 @@
 
 ## 2026-08-03
 
+* **App Engine applicationをTerraform管理へ移行**: 既存の `hamaguchi-family-linebot` applicationを `google_app_engine_application` としてimportし、作成後に削除できない特性に合わせて `prevent_destroy` を設定した。locationは既存どおり `asia-northeast2` とする。
 * **Speech本番不具合を修正**: 初回本番確認で `chirp_3` は `global` に存在しないというエラーを確認した。Speech-to-Text v2のendpointとRecognizerを、日本語 `ja-JP` のChirp 3をGA提供する `asia-northeast1` に揃えた。
 * **初回CDの不足APIを特定**: GitHub Actionsでbuild、vet、脆弱性検査、WIF認証まで成功した。App Engineデプロイ時にApp Engine Admin APIが無効であることが判明したため、`appengine.googleapis.com` をTerraformの必須APIへ追加した。
 * **CD workflow実装**: `master` pushをWIFで認証し、build、vet、脆弱性検査後にApp Engine本番へpromoteするGitHub Actions workflowを追加した。外部Actionは可読性と更新運用を優先してメジャーバージョンを指定する。

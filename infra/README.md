@@ -2,6 +2,14 @@
 
 `hamaguchi-family-linebot` の本番環境だけを管理する単一root moduleです。環境別directoryやworkspaceは使用しません。
 
+App Engine application本体も管理します。既存projectへ導入する場合は、作成済みapplicationを一度だけimportします。
+
+```bash
+terraform import google_app_engine_application.default PROJECT_ID
+```
+
+App Engine applicationは作成後にlocation変更や単体削除ができないため、resourceには `prevent_destroy` を設定しています。
+
 ## State backend
 
 state bucketはTerraform自身のstateへ含めず、bootstrap resourceとして手動管理します。このprojectでは `hamaguchi-family-linebot-tfstate` を作成済みです。通常は次だけで初期化できます。
