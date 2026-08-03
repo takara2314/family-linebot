@@ -14,7 +14,7 @@ okf_version: "0.2"
 * [認証とデプロイ](identity-and-deployment.md) - GitHub Actions、WIF、IAM設計
 * [言語・画像サービス](language-services.md) - 翻訳、スタンプ理解、音声認識の更新方針
 * [費用モデル](cost-model.md) - 無料枠と品質優先部分の費用見積もり
-* [刷新計画](modernization-plan.md) - 安全な実施順序と完了条件
+* [刷新実施記録](modernization-plan.md) - 完了した実施内容と任意の運用改善
 
 ## 変更履歴
 

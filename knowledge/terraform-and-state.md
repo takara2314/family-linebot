@@ -3,8 +3,10 @@ type: インフラ設計
 title: Terraformとremote stateの設計
 description: family-linebotを横展開できる単一環境のTerraform構成。
 tags: [terraform, gcs, tfstate, infrastructure-as-code]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
-verified: { by: "process:official-doc-review", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
+verified:
+  - { by: "process:official-doc-review", at: "2026-08-03T00:00:00+09:00" }
+  - { by: "process:terraform-plan", at: "2026-08-03T13:06:45+09:00" }
 status: stable
 stale_after: 2027-02-03
 sources:
@@ -26,7 +28,7 @@ sources:
 
 `infra/` 配下の単一root moduleを使う。`environments/`、`production.tfvars`、`example.tfvars`、追加のTerraform workspaceは作らない。単一の `terraform.tfvars` に横展開時に変更する非secret値を置く。
 
-想定ファイルは `versions.tf`、`providers.tf`、`backend.tf`、`variables.tf`、`terraform.tfvars`、目的別のresourceファイル、`outputs.tf`、`imports.tf`、`README.md` である。
+`versions.tf`、`providers.tf`、`backend.tf`、`variables.tf`、`terraform.tfvars`、目的別のresourceファイル、`outputs.tf`、`README.md` で構成する。
 
 # State bucket設計
 
@@ -40,7 +42,6 @@ bucket名は `hamaguchi-family-linebot-tfstate`、backend prefixは `default` �
 * Object Versioning
 * 7日間のsoft delete
 * 古い非現行versionのlifecycle rule
-* Terraformの `prevent_destroy`
 
 GoogleはCloud Storage remote backendを推奨し、build systemと高権限管理者だけにアクセスを制限するよう案内している。[^tf-security]
 
@@ -50,7 +51,7 @@ state bucketはTerraform自身では管理しない。backend初期化前にgclo
 
 # Resourceの管理境界
 
-既存App Engine application本体、配信version、trafficなどは今回のTerraform管理対象に含めない。App Engineのimmutableなapplication設定やlive stateをimportして管理範囲を広げず、デプロイ基盤に必要なAPI、identity、IAM、secret、state bucketだけを管理する。自動生成されたservice agentやGoogle内部APIも管理しない。
+既存App Engine application本体は `google_app_engine_application.default` へimport済みであり、location `asia-northeast2` と `prevent_destroy` を管理する。配信versionとtrafficはGitHub Actionsが更新するlive stateなのでTerraformへ含めない。自動生成されたservice agent、App Engine管理のArtifact Registry repository、Google内部resourceも管理しない。
 
 追加型の `google_*_iam_member` resourceを使う。Project全体に対するauthoritativeな `iam_policy` と `iam_binding` は、Google管理または残すべき手動memberを削除し得るため避ける。[^iam-resources]
 

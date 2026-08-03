@@ -1,11 +1,13 @@
 ---
 type: システム構成台帳
 title: family-linebotの現行システム
-description: コードとgcloud CLIから確認した、刷新判断に必要な既存構成の基準情報。
+description: コードとgcloud CLIから確認した、刷新後の本番構成に関する基準情報。
 resource: https://console.cloud.google.com/home/dashboard?project=hamaguchi-family-linebot
 tags: [family-linebot, google-cloud, app-engine, 現状調査]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
-verified: { by: "process:gcloud-read-only-inventory", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
+verified:
+  - { by: "process:gcloud-read-only-inventory", at: "2026-08-03T13:06:45+09:00" }
+  - { by: "human:takara2314", at: "2026-08-03T13:06:45+09:00" }
 status: stable
 sources:
   - id: repository
@@ -25,18 +27,17 @@ sources:
 | App Engineリージョン | `asia-northeast2` |
 | App Engine環境 | Standard |
 | Service | `default` |
-| Runtime | `go116` |
+| Runtime | `go126` |
 | Instance class | `F1` |
 | Scaling | Automatic |
-| 実行サービスアカウント | `hamaguchi-family-linebot@appspot.gserviceaccount.com` |
+| Scaling上限 | `min_instances: 0`、`max_instances: 1` |
+| 実行サービスアカウント | `family-linebot-runtime@hamaguchi-family-linebot.iam.gserviceaccount.com` |
 
-上表は本番の移行前基準であり、作業ツリーではGo 1.26への更新を開始している。Runtimeなど刷新によって変更される項目は、デプロイ完了までは本番の現在値と混同しない。
+# アプリケーション機能
 
-# 未デプロイの刷新実装
+module pathは `github.com/takara2314/family-linebot` である。LINE SDK v8、Translation Advanced v3 NMT、Gemini Enterprise Agent Platform上のGemini 3.5 Flash-Lite、Speech-to-Text v2 `chirp_3` を利用する。Speechは `us` multi-regionで `ja-JP` だけを受け付ける。LINE認証情報はSecret Managerから起動時に取得する。
 
-2026-08-03時点の作業ツリーでは、module pathを `github.com/takara2314/family-linebot`、runtimeを `go126` に更新した。LINE SDK v8、Translation Advanced v3、Gemini Enterprise Agent Platform上のGemini 3.5 Flash-Lite、Speech-to-Text v2 `chirp_3`、Secret Manager参照を実装済みである。元のGin handler、グローバルclient、`convertJpTh.go` と `post*Message.go` の構成を維持し、環境変数・既定値・Secret Manager参照だけを `config.go` に集約している。ビルドと静的解析は確認済みだが、まだ本番状態を表さない。
-
-作業ツリーのApp Engine automatic scalingは、家族内アプリの利用規模と費用上限を優先し、`min_instances: 0`、`max_instances: 1` としている。
+元のGin handler、グローバルclient、`convertJpTh.go` と `post*Message.go` の構成を維持し、環境変数・既定値・Secret Manager参照は `config.go` に集約している。
 
 # Live stateの確認
 
@@ -51,7 +52,7 @@ gcloud app versions list --project=hamaguchi-family-linebot
 
 # 秘密情報
 
-配信中versionには `LINEBOT_CHANNEL_SECRET` と `LINEBOT_CHANNEL_TOKEN` という環境変数がある。値は取得していない。Secret Managerは無効である。
+`linebot-channel-secret` と `linebot-channel-token` をSecret Managerで管理する。App Engineにはsecret payloadを置かず、secret名だけを環境変数で渡す。payloadはTerraform state、GitHub Actions、リポジトリに保存しない。
 
 # 認証と権限
 
@@ -61,10 +62,12 @@ gcloud app versions list --project=hamaguchi-family-linebot
 | `takara2314@hamaguchi-family-linebot.iam.gserviceaccount.com` | Owner |
 | `takara2314.tk@gmail.com` | Owner |
 
-個人名のサービスアカウントには、2020年と2022年に作成された無期限のユーザー管理キーが2個ある。無効化前に利用状況を調査する必要がある。
+個人名のサービスアカウントにはユーザー管理キーが2個残っている。現行のApp Engine実行とGitHub Actionsデプロイでは使用していないが、無効化前に他用途の利用状況を確認する。
 
 # デリバリー基盤
 
-TerraformによりGitHub Actions用Workload Identity Pool/provider、deployer/runtimeサービスアカウント、Secret Manager secret、必要API、state bucketを作成済みである。配信中App Engine versionの環境変数から値を表示せず、Secret Managerの2つのsecretへversion 1として移行済みである。作業ツリーでは `master` pushを本番へpromoteするGitHub Actions workflowも追加している。明示的なArtifact Registry repositoryは作成していない。
+TerraformはApp Engine application、必要API、runtime/deployerサービスアカウント、IAM、GitHub Actions用WIF pool/provider、Secret Manager secretを管理する。state bucket `hamaguchi-family-linebot-tfstate` はbootstrap resourceとしてTerraform外で管理する。apply後のplanは差分0である。
+
+`master` pushはGitHub Actionsでbuild、vet、脆弱性検査、WIF認証を行い、成功後にApp Engineへpromoteする。任意のArtifact Registry repositoryは作成していない。`gae-standard` repositoryはApp Engineがbuild image保存用に自動作成した内部実装である。
 
 GitHubリポジトリはPublicである。不変なRepository IDは `324532124`、Owner IDは `26915490`、現在のdefault branchは `master` である。

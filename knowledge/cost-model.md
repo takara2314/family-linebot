@@ -3,7 +3,7 @@ type: 費用モデル
 title: Google Cloud月額費用の見込み
 description: 刷新後の単一本番家族アプリケーションに関する費用見込み。
 tags: [cost, free-tier, google-cloud]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
 verified: { by: "process:official-pricing-review", at: "2026-08-03T00:00:00+09:00" }
 status: stable
 stale_after: 2026-09-03
@@ -56,7 +56,7 @@ sources:
 
 # 費用管理
 
-App EngineはF1 automatic scaling、`min_instances: 0`、`max_instances: 1` を維持する。不要なsecret versionをdestroyし、刷新後の初回デプロイ後にApp Engine管理build imageの保存量を確認する。
+App EngineはF1 automatic scaling、`min_instances: 0`、`max_instances: 1` を維持する。不要なsecret versionをdestroyし、App Engine管理build imageの保存量を定期的に確認する。
 
 [^appengine-pricing]: 2026-08-03に確認したApp Engine Standard無料quota。
 [^translation-pricing]: 2026-08-03に確認したCloud Translation料金。

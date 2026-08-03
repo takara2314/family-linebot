@@ -3,8 +3,10 @@ type: アーキテクチャ意思決定記録
 title: 刷新に関するアーキテクチャ意思決定
 description: オーナーが承認した運用制約と主要な技術選択。
 tags: [意思決定, 本番環境, app-engine, 品質]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
-verified: { by: "human:takara2314", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
+verified:
+  - { by: "human:takara2314", at: "2026-08-03T00:00:00+09:00" }
+  - { by: "human:takara2314", at: "2026-08-03T13:06:45+09:00" }
 status: stable
 sources:
   - id: owner-decisions
@@ -27,8 +29,9 @@ sources:
 7. 課金が発生してもスタンプ文字理解と音声認識の品質を優先する。スタンプ処理を文書OCRだけでなくマルチモーダル解釈として扱い、Geminiを第一候補、Vision OCRを比較基準または障害時fallbackとする。
 8. 音声認識は日本語だけを受け付ける。`ja-JP` のみを指定し、日本語・タイ語の自動判定を有効にしない。
 9. 翻訳はまずCloud Translation Advanced v3 NMTを使う。Translation LLMは既定値ではなく評価候補とする。
-10. Artifact RegistryはApp Engineのビルド内部実装として扱う。刷新後の初回デプロイ前に任意のrepositoryを作らない。
+10. Artifact RegistryはApp Engineのビルド内部実装として扱い、任意のrepositoryは作らない。
 11. App Engine automatic scalingは `min_instances: 0`、`max_instances: 1` とし、同時実行性能より家族内利用に十分な規模と費用上限を優先する。
+12. 日本語Chirp 3は、アジアリージョンの実APIで拒否されたため `us` multi-regionを利用する。日本語限定と認識品質をデータ処理リージョンの近さより優先する。
 
 # 結果とトレードオフ
 

@@ -3,8 +3,10 @@ type: セキュリティ設計
 title: GitHubデプロイの認証とIAM
 description: Workload Identity Federationを使ったGitHub ActionsからApp Engineへのキーレスデプロイ。
 tags: [github-actions, workload-identity-federation, iam, app-engine]
-generated: { by: "openai-codex/gpt-5", at: "2026-08-03T00:00:00+09:00" }
-verified: { by: "process:official-doc-review", at: "2026-08-03T00:00:00+09:00" }
+generated: { by: "openai-codex/gpt-5", at: "2026-08-03T13:06:45+09:00" }
+verified:
+  - { by: "process:official-doc-review", at: "2026-08-03T00:00:00+09:00" }
+  - { by: "process:github-actions-production", at: "2026-08-03T13:06:45+09:00" }
 status: stable
 stale_after: 2027-02-03
 sources:
@@ -49,7 +51,7 @@ GitHubは共有マルチテナントissuerを使うため、spoofing防止には
 
 workflow権限は `contents: read` と `id-token: write` だけにし、`google-github-actions/auth` でdeployerをimpersonateする。長期Google credentialはGitHubに保存しない。
 
-provider resource名はTerraform outputからworkflowへ設定する。workflow自体は後続変更として追加する。
+provider resource名はTerraform outputの値をworkflowへ設定済みである。
 
 # 本番デプロイフロー
 
