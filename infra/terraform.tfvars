@@ -1,0 +1,5 @@
+project_id                 = "hamaguchi-family-linebot"
+region                     = "asia-northeast2"
+github_repository_id       = "324532124"
+github_repository_owner_id = "26915490"
+github_deploy_ref          = "refs/heads/master"

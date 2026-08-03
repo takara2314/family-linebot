@@ -30,7 +30,7 @@ sources:
 
 # State bucket設計
 
-bucket名は `hamaguchi-family-linebot-tfstate`、backend prefixは `default` とする。2026-08-03の読み取り確認では404だったが、グローバルでの一意性は作成成功時にのみ確定する。
+bucket名は `hamaguchi-family-linebot-tfstate`、backend prefixは `default` とする。bootstrapとGCS backendへのstate移行は完了している。
 
 `asia-northeast2` に次の設定で作る。
 
@@ -46,11 +46,11 @@ GoogleはCloud Storage remote backendを推奨し、build systemと高権限管�
 
 # 初回構築
 
-最初だけlocal stateでstate bucketを作成し、GCS backendを有効化して `terraform init -migrate-state` で移行する。復旧方法とbootstrapコマンドを `infra/README.md` に記録する。
+state bucketはTerraform自身では管理しない。backend初期化前にgcloud CLIで手動作成し、公開防止、uniform access、versioning、soft deleteを設定する。これによりstateを保存するbucket自身を同じstateで管理する循環を避ける。復旧方法とbootstrapコマンドを `infra/README.md` に記録する。
 
 # Resourceの管理境界
 
-変更前に既存App Engine applicationと明示管理するpublic APIをimportする。[^import] 自動生成されたservice agentやGoogle内部APIは管理しない。
+既存App Engine application本体、配信version、trafficなどは今回のTerraform管理対象に含めない。App Engineのimmutableなapplication設定やlive stateをimportして管理範囲を広げず、デプロイ基盤に必要なAPI、identity、IAM、secret、state bucketだけを管理する。自動生成されたservice agentやGoogle内部APIも管理しない。
 
 追加型の `google_*_iam_member` resourceを使う。Project全体に対するauthoritativeな `iam_policy` と `iam_binding` は、Google管理または残すべき手動memberを削除し得るため避ける。[^iam-resources]
 

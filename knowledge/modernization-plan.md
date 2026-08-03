@@ -26,16 +26,16 @@ sources:
 
 # Phase 2: Terraform bootstrap
 
-1. 単一rootの `infra/` 構成を追加する。
-2. local stateで `hamaguchi-family-linebot-tfstate` を作り、stateをGCSへ移行する。
-3. 既存App Engine applicationと明示管理するAPIをimportする。
-4. `terraform plan` がApp Engine applicationを置換せず、Google管理IAMを削除しないことを確認する。
+1. [完了] 単一rootの `infra/` 構成を追加する。
+2. [完了] `hamaguchi-family-linebot-tfstate` を手動bootstrap resourceとして作り、Terraform管理外のGCS backendとして利用する。
+3. [完了] 必要API、identity、IAM、secretを追加型resourceで管理する。既存App Engine applicationとlive stateは管理対象外とする。
+4. [完了] apply後の `terraform plan` が0差分で、既存IAMを削除しないことを確認する。
 
 # Phase 3: キーレスデプロイとsecret
 
-1. runtimeとdeployerサービスアカウントを作る。
-2. Repository ID `324532124`、Owner ID `26915490`、`master` に制限したGitHub WIF trustを作る。
-3. Secret Manager resourceを作り、Terraform外からLINE secret payloadを投入する。
+1. [完了] runtimeとdeployerサービスアカウントを作る。
+2. [完了] Repository ID `324532124`、Owner ID `26915490`、`master` に制限したGitHub WIF trustを作る。
+3. [完了] Secret Manager resourceを作り、配信中versionから値を表示せずLINE secret payloadをversion 1へ移行する。
 4. GitHub Actionsのビルド・静的解析とApp Engineデプロイを追加する。
 
 # Phase 4: アプリケーション刷新
